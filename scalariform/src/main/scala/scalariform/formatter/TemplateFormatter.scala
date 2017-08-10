@@ -30,7 +30,7 @@ trait TemplateFormatter { self: HasFormattingPreferences with AnnotationFormatte
     } {
       if (annotations.size > 0)
         formatResult = formatResult.formatNewlineOrOrdinary(firstToken, CompactEnsuringGap)
-      val doubleIndentParams = (formattingPreferences(DoubleIndentClassDeclaration) &&
+      val doubleIndentParams = (formattingPreferences(DoubleIndentConstructorArguments) &&
         !templateInheritanceSectionOpt.exists { section ⇒
           containsNewline(section) || hiddenPredecessors(section.firstToken).containsNewline
         } &&

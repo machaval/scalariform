@@ -2,27 +2,31 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import scalariform.formatter.preferences._
 
 lazy val commonSettings = inConfig(Test)(Defaults.testSettings) ++
-    SbtScalariform.defaultScalariformSettings ++ Seq(
-  organization := "com.github.machaval",
-  sonatypeProfileName := organization.value,
-  scalaVersion := crossScalaVersions.value.head,
-  crossScalaVersions := Seq(
-    "2.12.0",
-    "2.11.8",
-    "2.10.6"
-  ),
-  exportJars := true, // Needed for cli oneJar
-  scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-    case Some((2, major)) if major >= 11 =>
-      scalac2_10Options ++ scalac2_11Options
-    case _ =>
-      scalac2_10Options
-  }),
-  credentials ++= {
-    val creds = Path.userHome / ".m2" / "credentials"
-    if (creds.exists) Seq(Credentials(creds)) else Nil
-  }
-)
+  SbtScalariform.defaultScalariformSettings ++ Seq(
+    organization := "org.scalariform",
+    sonatypeProfileName := organization.value,
+    scalaVersion := crossScalaVersions.value.head,
+    crossScalaVersions := Seq(
+      "2.12.3",
+      "2.11.11",
+      "2.10.6"
+    ),
+    scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 12)) => Seq(
+        "-Xlint:-unused,_", "-Ywarn-unused:imports",
+        "-language:postfixOps", "-language:implicitConversions",
+        "-deprecation", "-feature"
+      )
+      case Some((2, major)) if major >= 11 =>
+        scalac2_10Options ++ scalac2_11Options
+      case _ =>
+        scalac2_10Options
+    }),
+    credentials ++= {
+      val creds = Path.userHome / ".m2" / "credentials"
+      if (creds.exists) Seq(Credentials(creds)) else Nil
+    }
+  )
 
 def scalac2_10Options = Seq(
   "-encoding", "UTF-8",
@@ -69,8 +73,8 @@ lazy val subprojectSettings = commonSettings :+ (
 def scala2_11Dependencies = Def.setting {
   CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, major)) if major >= 11 => Seq(
-      "org.scala-lang.modules" %% "scala-xml" % "1.0.5",
-      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.4"
+      "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
+      "org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6"
     )
     case _ => Nil
   }
@@ -131,7 +135,7 @@ lazy val root = (project in file(".")
 
 def pomExtraXml =
   <inceptionYear>2010</inceptionYear>
-  <url>https://github.com/machaval/scalariform</url>
+  <url>https://github.com/scala-ide/scalariform</url>
   <licenses>
     <license>
       <name>MIT License</name>
@@ -140,15 +144,10 @@ def pomExtraXml =
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:machaval/scalariform.git</url>
-    <connection>scm:git:git@github.com:machaval/scalariform</connection>
+    <url>git@github.com:scala-ide/scalariform.git</url>
+    <connection>scm:git:git@github.com:scala-ide/scalariform</connection>
   </scm>
   <developers>
-    <developer>
-      <id>machaval</id>
-      <name>Mariano de Achaval</name>
-      <url>https://github.com/machaval/</url>
-    </developer>
     <developer>
       <id>scala-ide</id>
       <name>Scala IDE</name>
@@ -163,5 +162,15 @@ def pomExtraXml =
       <id>daniel-trinh</id>
       <name>Daniel Trinh</name>
       <url>https://github.com/daniel-trinh/</url>
+    </developer>
+    <developer>
+      <id>machaval</id>
+      <name>Mariano de Achaval</name>
+      <url>https://github.com/machaval/</url>
+    </developer>
+    <developer>
+      <id>godenji</id>
+      <name>N.S. Cutler</name>
+      <url>https://github.com/godenji/</url>
     </developer>
   </developers>

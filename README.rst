@@ -40,7 +40,7 @@ sbt will build one jar with all the dependencies and put it in ::
 
 You can copy this to a location in your path and execute it as follows: ::
 
-   java -jar /home/me/bin/cli-assembly-$scalariform_version.jar -f -q +compactControlReadability +alignParameters +alignSingleLineCaseStatements +doubleIndentClassDeclaration +rewriteArrowSymbols +preserveSpaceBeforeArguments --stdout ~/myproject/src/main/scala/Stuff.scala > Stuff.scala
+   java -jar /home/me/bin/cli-assembly-$scalariform_version.jar -f -q +compactControlReadability +alignParameters +alignSingleLineCaseStatements +doubleIndentConstructorArguments +rewriteArrowSymbols +preserveSpaceBeforeArguments --stdout ~/myproject/src/main/scala/Stuff.scala > Stuff.scala
 
 Integration with sbt
 --------------------
@@ -52,7 +52,7 @@ Usage within a project
 
 Have a use for the scalariform source code directly? You can use it as a build dependency: ::
 
-    "org.scalariform" %% "scalariform" % "0.1.8"
+    "org.scalariform" %% "scalariform" % "0.2.3"
 
 Integration with Eclipse
 ------------------------
@@ -70,6 +70,11 @@ To set preferences, go to either
 
 - Window -> Preferences -> Scala -> Editor -> Formatter
 - Project -> Properties -> Scala Formatter
+
+From the formatter preference window you can import/export existing preferences.
+See the `reference.conf`_ for a listing of all available preferences and their defaults.
+
+.. _reference.conf: https://github.com/scala-ide/scalariform/blob/master/formatterPreferences.properties
 
 Integration with Emacs/ENSIME
 -----------------------------
@@ -132,7 +137,7 @@ Usage (Gradle 2.1 and above)::
     alignParameters = true
     alignSingleLineCaseStatements = true
   }
-  
+
   formatAllScala
 
 See `the documentation`_ for further usage examples.
@@ -155,11 +160,13 @@ While there is no specific Vim integration at present, you can use
 Scalariform as an external formatter for the ``gg=G`` command by adding
 the following to ``.vimrc`` ::
   
-  au BufEnter *.scala setl formatprg=java\ -jar\ /home/me/bin/scalariform.jar\ -f\ -q\ +compactControlReadability\ +alignParameters\ +alignSingleLineCaseStatements\ +doubleIndentClassDeclaration\ +rewriteArrowSymbols\ +preserveSpaceBeforeArguments\ --stdin\ --stdout
-  au BufEnter *.scala setl equalprg=java\ -jar\ /home/me/bin/scalariform.jar\ -f\ -q\ +compactControlReadability\ +alignParameters\ +alignSingleLineCaseStatements\ +doubleIndentClassDeclaration\ +rewriteArrowSymbols\ +preserveSpaceBeforeArguments\ --stdin\ --stdout
+  au BufEnter *.scala setl formatprg=java\ -jar\ /home/me/bin/scalariform.jar\ -f\ -q\ +compactControlReadability\ +alignParameters\ +alignSingleLineCaseStatements\ +doubleIndentConstructorArguments\ +rewriteArrowSymbols\ +preserveSpaceBeforeArguments\ --stdin\ --stdout
+  au BufEnter *.scala setl equalprg=java\ -jar\ /home/me/bin/scalariform.jar\ -f\ -q\ +compactControlReadability\ +alignParameters\ +alignSingleLineCaseStatements\ +doubleIndentConstructorArguments\ +rewriteArrowSymbols\ +preserveSpaceBeforeArguments\ --stdin\ --stdout
 
 
-You can create your own executable scalariform.jar by following the instructions at the top of this file, in "Packaging an executable JAR."
+Download scalariform.jar from the `latest release`_
+
+.. _latest release: https://github.com/scala-ide/scalariform/releases/latest
 
 Command line tool
 -----------------
@@ -173,6 +180,35 @@ Library
 
 Preferences
 -----------
+
+alignArguments
+~~~~~~~~~~~~~~
+
+Default: ``false``
+
+Aligns multi-line arguments
+
+For example, if ``false``, then:
+
+.. code:: scala
+
+  Cake(candles = 10,
+    frostingFlavor = Vanilla,
+    layerFlavor = Chocolate,
+    iceCream = true
+  )
+
+If ``true``, then:
+
+.. code:: scala
+
+  Cake(candles        = 10,
+       frostingFlavor = Vanilla,
+       layerFlavor    = Chocolate,
+       iceCream       = true
+  )
+
+This option is disabled if ``indentWithTabs`` is ``true``.
 
 alignParameters
 ~~~~~~~~~~~~~~~
@@ -228,127 +264,6 @@ If ``true``, then:
   ): DateTime
 
 This option is disabled if ``indentWithTabs`` is ``true``.
-
-firstParameterOnNewline
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Default: ``Force``
-
-Whether or not to place the first parameter for multi-line method or constructor definition on its own line.
-
-If ``Force``, first parameters will be on a new line:
-
-.. code:: scala
-
-  abstract class Person(
-    name: Int,
-    age: String
-  ) {
-    def livesIn(
-      city: String,
-      state: String
-    ): Boolean
-  }
-
-If ``Prevent``, first parameters will be on the definition line:
-
-.. code:: scala
-
-  abstract class Person(name: Int,
-    age: String
-  ) {
-    def livesIn(city: String,
-      state: String
-    ): Boolean
-  }
-
-If ``Preserve``, first parameters will stay where they are:
-
-.. code:: scala
-
-  abstract class Person(name: Int,
-    age: String
-  ) {
-    def livesIn(
-      city: String,
-      state: String
-    ): Boolean
-  }
-
-alignArguments
-~~~~~~~~~~~~~~
-
-Default: ``false``
-
-Aligns multi-line arguments
-
-For example, if ``false``, then:
-
-.. code:: scala
-
-  Cake(candles = 10,
-    frostingFlavor = Vanilla,
-    layerFlavor = Chocolate,
-    iceCream = true
-  )
-
-If ``true``, then:
-
-.. code:: scala
-
-  Cake(candles        = 10,
-       frostingFlavor = Vanilla,
-       layerFlavor    = Chocolate,
-       iceCream       = true
-  )
-
-This option is disabled if ``indentWithTabs`` is ``true``.
-
-firstArgumentOnNewline
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Default: ``Force``
-
-Whether or not to place the first argument of multi-line function calls on its own line.
-
-If ``Force``, first arguments will be on a new line:
-
-.. code:: scala
-
-  foo(
-    1,
-    2
-  )
-
-  bar(
-    3,
-    4
-  )
-
-If ``Prevent``, first arguments will be on function call line:
-
-.. code:: scala
-
-  foo(1,
-    2
-  )
-
-  bar(3,
-    4
-  )
-
-If ``Preserve``, first arguments will stay where they are:
-
-.. code:: scala
-
-  foo(
-    1,
-    2
-  )
-
-  bar(3,
-    4
-  )
 
 alignSingleLineCaseStatements
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -450,17 +365,53 @@ invoked using infix notation with spaces separated the target".
 
 .. _recommends: http://docs.scala-lang.org/style/method-invocation.html#symbolic-methodsoperators
 
-doubleIndentClassDeclaration
+danglingCloseParenthesis
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``Prevent``
+
+If ``Force``, any closing parentheses will be set to dangle. For example:
+
+.. code:: scala
+
+   Box(
+     contents: List[Thing])
+
+becomes:
+
+.. code:: scala
+
+   Box(
+     contents: List[Thing]
+   )
+
+If ``Prevent``, all dangling parenthesis are collapsed. For example:
+
+.. code:: scala
+
+   Box(
+     contents: List[Thing]
+   )
+
+becomes:
+
+.. code:: scala
+
+   Box(
+     contents: List[Thing])
+
+If ``Preserve``, scalariform will try to match what unformatted source code is already doing per parenthesis,
+either forcing or preventing.
+
+~~doubleIndentClassDeclaration~~ (Deprecated, use `doubleIndentConstructorArguments`)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Default: ``false``
 
-With this set to ``true``, class (and trait / object) declarations
-will be formatted as recommended_ by the Scala Style Guide. That is,
-if the declaration section spans multiple lines, it will be formatted
-so that either the parameter section or the inheritance section is
-doubly indented. This provides a visual distinction from the members
-of the class. For example:
+With this set to ``true`` and ``doubleIndentConstructorArguments`` set to ``false``,
+class (and trait / object) declarations that span multiple lines will be formatted so
+that the inheritance section is doubly indented. This provides a visual distinction
+from the members of the class. For example:
 
 .. code:: scala
 
@@ -478,7 +429,7 @@ of the class. For example:
     def firstMethod = ...
   }
 
-This setting will be overridden by ``doubleIndentConstructorArguments``.
+Note: ``doubleIndentConstructorArguments`` style formatting is recommended_ by the Scala Style Guide.
 
 doubleIndentConstructorArguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -522,6 +473,8 @@ Or:
 
 .. _recommended: http://docs.scala-lang.org/style/declarations.html#classes
 
+.. _recommended: http://docs.scala-lang.org/style/declarations.html#classes
+
 doubleIndentMethodDeclaration
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -543,6 +496,98 @@ Or::
       paramTwoNameIsLong: String,
       paramThreeNameIsLong): Unit = {
     val startOfMethod = ...
+  }
+
+firstArgumentOnNewline
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``Force``
+
+Whether or not to place the first argument of multi-line function calls on its own line.
+
+If ``Force``, first arguments will be on a new line:
+
+.. code:: scala
+
+  foo(
+    1,
+    2
+  )
+
+  bar(
+    3,
+    4
+  )
+
+If ``Prevent``, first arguments will be on function call line:
+
+.. code:: scala
+
+  foo(1,
+    2
+  )
+
+  bar(3,
+    4
+  )
+
+If ``Preserve``, first arguments will stay where they are:
+
+.. code:: scala
+
+  foo(
+    1,
+    2
+  )
+
+  bar(3,
+    4
+  )
+
+firstParameterOnNewline
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``Force``
+
+Whether or not to place the first parameter for multi-line method or constructor definition on its own line.
+
+If ``Force``, first parameters will be on a new line:
+
+.. code:: scala
+
+  abstract class Person(
+    name: Int,
+    age: String
+  ) {
+    def livesIn(
+      city: String,
+      state: String
+    ): Boolean
+  }
+
+If ``Prevent``, first parameters will be on the definition line:
+
+.. code:: scala
+
+  abstract class Person(name: Int,
+    age: String
+  ) {
+    def livesIn(city: String,
+      state: String
+    ): Boolean
+  }
+
+If ``Preserve``, first parameters will stay where they are:
+
+.. code:: scala
+
+  abstract class Person(name: Int,
+    age: String
+  ) {
+    def livesIn(
+      city: String,
+      state: String
+    ): Boolean
   }
 
 formatXml
@@ -682,44 +727,6 @@ If ``true``, the formatter will keep an existing space before a parenthesis argu
 
 Otherwise, if ``false``, spaces before arguments will always be removed.
 
-danglingCloseParenthesis
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Default: ``Prevent``
-
-If ``Force``, any closing parentheses will be set to dangle. For example:
-
-.. code:: scala
-
-   Box(
-     contents: List[Thing])
-
-becomes:
-
-.. code:: scala
-
-   Box(
-     contents: List[Thing]
-   )
-
-If ``Prevent``, all dangling parenthesis are collapsed. For example:
-
-.. code:: scala
-
-   Box(
-     contents: List[Thing]
-   )
-
-becomes:
-
-.. code:: scala
-
-   Box(
-     contents: List[Thing])
-
-If ``Preserve``, scalariform will try to match what unformatted source code is already doing per parenthesis,
-either forcing or preventing.
-
 rewriteArrowSymbols
 ~~~~~~~~~~~~~~~~~~~
 
@@ -811,23 +818,6 @@ If ``false``, then:
 
   def main(args : Array[String])
 
-spacesWithinPatternBinders
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Default: ``true``
-
-Whether to add a space around the @ token in pattern binders. For example, if ``true``,:
-
-.. code:: scala
-
-  case elem @ Multi(values @ _*) =>
-
-If ``false``,:
-
-.. code:: scala
-
-  case elem@Multi(values@_*) =>
-
 spacesAroundMultiImports
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -850,6 +840,23 @@ If ``true``, then:
 
 Compatibility note: Versions 0.1.6 & 0.1.7 of `Scalariform` used ``false``.
 
+spacesWithinPatternBinders
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Default: ``true``
+
+Whether to add a space around the @ token in pattern binders. For example, if ``true``,:
+
+.. code:: scala
+
+  case elem @ Multi(values @ _*) =>
+
+If ``false``,:
+
+.. code:: scala
+
+  case elem@Multi(values@_*) =>
+
 Scala Style Guide
 ~~~~~~~~~~~~~~~~~
 
@@ -864,7 +871,7 @@ Preference                                  Value     Default?
 =========================================== ========= =========
 alignParameters                             ``false``
 compactStringConcatenation                  ``false``
-doubleIndentClassDeclaration                ``true``    No
+doubleIndentConstructorArguments            ``true``    No
 indentSpaces                                ``2``
 placeScaladocAsterisksBeneathSecondAsterisk ``true``    No
 preserveSpaceBeforeArguments                ``false``
